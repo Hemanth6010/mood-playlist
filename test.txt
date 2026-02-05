@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Mood Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎵 Mood Playlist Gen</h1>
+
+        <div id="login-section">
+            <button id="login-btn">Login with Spotify</button>
+        </div>
+
+        <div id="app-section" class="hidden">
+            <h3>Type a mood & pick a language:</h3>
+            
+            <input type="text" id="mood-input" placeholder="Ex: Party, Sad, Gym...">
+            
+            <select id="language-select">
+                <option value="">Any Language</option>
+                <option value="Hindi">Hindi</option>
+                <option value="English">English</option>
+                <option value="Spanish">Spanish</option>
+                <option value="Korean">Korean</option>
+            </select>
+
+            <button id="generate-btn">Create Playlist</button>
+            
+            <p id="status-message"></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
+
+body {
+    background-color: #121212; /* Spotify Black */
+    color: white;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    text-align: center;
+    background: #282828; /* Spotify Dark Grey */
+    padding: 30px;
+    border-radius: 20px;
+    width: 300px;
+}
+
+/* This class hides elements. We will toggle this using JS */
+.hidden {
+    display: none;
+}
+
+input, select, button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 20px;
+    border: none;
+}
+
+button {
+    background-color: #1DB954; /* Spotify Green */
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+
+
+
+
+
+// ==============================
+// 1. CONFIGURATION
+// ==============================
+// 🔴 STEP 1: Paste your Client ID inside the quotes below
+const clientId = '2f9c7addc1924f78a1077fa231e36ae8'; 
+
+// 🔴 STEP 2: Paste your Live Server URL below (e.g., http://127.0.0.1:5500/index.html)
+const redirectUri = 'http://127.0.0.1:5500/index.html'; 
+
+const scopes = 'user-read-private playlist-modify-public playlist-modify-private';
+
+// ==============================
+// 2. DOM ELEMENTS
+// ==============================
+const loginSection = document.getElementById('login-section');
+const appSection = document.getElementById('app-section');
+const loginBtn = document.getElementById('login-btn');
+const generateBtn = document.getElementById('generate-btn');
+const statusMsg = document.getElementById('status-message');
+
+// ==============================
+// 3. LOGIN LOGIC
+// ==============================
+loginBtn.addEventListener('click', () => {
+    // 🟢 THIS WAS THE FIX: The correct Spotify URL
+    let url = 'https://accounts.spotify.com/authorize';
+    
+    url += '?response_type=token';
+    url += '&client_id=' + encodeURIComponent(clientId);
+    url += '&scope=' + encodeURIComponent(scopes);
+    url += '&redirect_uri=' + encodeURIComponent(redirectUri);
+    url += '&show_dialog=true'; 
+    
+    window.location.href = url;
+});
+
+// ==============================
+// 4. CHECK FOR TOKEN ON RETURN
+// ==============================
+const hash = window.location.hash;
+
+if (hash) {
+    const token = hash.substring(1).split('&').find(elem => elem.startsWith('access_token')).split('=')[1];
+    
+    if (token) {
+        // UI Updates
+        loginSection.classList.add('hidden');
+        appSection.classList.remove('hidden');
+        
+        // Save Token
+        window.spotifyToken = token;
+        
+        // Clean URL
+        window.location.hash = '';
+    }
+}
